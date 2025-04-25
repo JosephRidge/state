@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:state/core/change_notifiers/counter.dart';
+import 'package:state/models/album.dart';
 import './utility/globals.dart' as globals;
 
 void main() {
@@ -39,12 +40,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   CounterNotifier counterNotifier = CounterNotifier();
-  late Future<Response> albums;
+  late Future<Album> albums;
 
   @override
   void initState() {
-    albums = globals.fetchAlbum();
     super.initState();
+    albums = globals.fetchAlbum();
   }
 
   @override
@@ -58,8 +59,20 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text("${albums}"),
-            const Text('You have pushed the button this many times:'),
+            FutureBuilder<Album>(
+              future: albums,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Text(snapshot.data!.title);
+                } else if (snapshot.hasError) {
+                  return Text('${snapshot.error}');
+                }
+
+                // By default, show a loading spinner.
+                return const CircularProgressIndicator();
+              },
+            ),
+            Text('You have pushed the button this many times:'),
             ListenableBuilder(
               listenable: counterNotifier,
               builder: (context, child) {

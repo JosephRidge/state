@@ -1,9 +1,15 @@
-import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-Future<http.Response> fetchAlbum() {
-  final response = http.get(
+import 'package:http/http.dart' as http;
+import 'package:state/models/album.dart';
+
+Future<Album> fetchAlbum() async {
+  final response = await http.get(
     Uri.parse('https://jsonplaceholder.typicode.com/albums/1'),
   );
-  print(response.toString());
-  return response;
+ if (response.statusCode == 200) { 
+    return Album.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  } else { 
+    throw Exception('Failed to load album');
+  } 
 }
